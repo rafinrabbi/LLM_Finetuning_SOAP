@@ -1,0 +1,19 @@
+# Flask API Requirements
+# ======================
+
+# Core ML libraries
+torch>=2.0.0
+transformers>=4.35.0
+accelerate>=0.24.0
+
+# Flask and web server
+flask>=3.0.0
+flask-cors>=4.0.0
+gunicorn>=21.2.0
+
+# Additional utilities
+numpy>=1.24.0
+sentencepiece>=0.1.99
+
+# Optional but recommended
+huggingface-hub>=0.19.0

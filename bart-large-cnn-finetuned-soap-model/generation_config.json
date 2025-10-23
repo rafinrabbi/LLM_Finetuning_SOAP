@@ -1,0 +1,10 @@
+{
+  "eos_token_id": 2,
+  "length_penalty": 1.5,
+  "max_length": 900,
+  "min_length": 150,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "repetition_penalty": 1.2,
+  "transformers_version": "4.57.1"
+}
