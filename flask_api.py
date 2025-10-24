@@ -107,9 +107,12 @@ def generate_soap_note(
             truncation=True
         ).to(DEVICE)
         
+        
+
         # Generate
         with torch.no_grad():
             if generation_config:
+                generation_config.decoder_start_token_id = model.config.decoder_start_token_id
                 outputs = model.generate(
                     **inputs,
                     generation_config=generation_config,

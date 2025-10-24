@@ -97,6 +97,7 @@ def generate_soap_note(dialogue: str,
         # Generate
         with torch.no_grad():
             if generation_config:
+                generation_config.decoder_start_token_id = model.config.decoder_start_token_id
                 # Use saved generation config with overrides
                 outputs = model.generate(
                     **inputs,
