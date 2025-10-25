@@ -12,7 +12,7 @@ import torch
 # MODEL CONFIGURATION
 # ============================================================================
 
-MODEL_PATH = os.environ.get("MODEL_PATH", "./bart-large-cnn-finetuned-soap-model")
+MODEL_PATH = os.environ.get("MODEL_PATH", "./saved-finetuned-model")
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # ============================================================================
