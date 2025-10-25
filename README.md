@@ -23,29 +23,43 @@ We fine-tune a pre-trained sequence-to-sequence transformer (BART-Large-CNN) on 
 
 ### Key Features
 - ✅ **Fine-tuned BART Model** for medical domain adaptation
-- ✅ **Comprehensive Evaluation** with ROUGE, BLEU metrics
+- ✅ **Comprehensive Evaluation** with ROUGE1, ROUGE2, ROUGEL, ROUGELSUM, and BLEU metrics
 - ✅ **REST API** for easy integration
 - ✅ **Docker Support** for containerized deployment
 - ✅ **Gradio Interface** for interactive testing
 - ✅ **Baseline Comparison** showing improvement over pre-trained model
 
+### Project Links
+- **Repository**: https://github.com/rafinrabbi/LLM_Finetuning_SOAP
+- **Live API**: [https://rawhaturrafin-llm-finetuning-soap-api.hf.space/](https://rawhaturrafin-llm-finetuning-soap-api.hf.space/)
+- **Live Gradio Interface**: [https://rawhaturrafin-llm-finetuning-soap-gradio.hf.space/](https://rawhaturrafin-llm-finetuning-soap-gradio.hf.space/)
+- **Model on Hugging Face Hub**: [https://huggingface.co/rawhaturrafin/Finetuned_BART_large_CNN_for_SOAP_Summary](https://huggingface.co/rawhaturrafin/Finetuned_BART_large_CNN_for_SOAP_Summary)
 ---
 
 ## 🎯 Thought Process & Problem-Solving Approach
 
 ### 1. Problem Analysis
-**Challenge**: Converting unstructured medical conversations to structured clinical notes
-- **Input**: Natural dialogue between doctors and patients (variable length, informal language)
-- **Output**: Structured SOAP format (concise, professional medical terminology)
-- **Complexity**: Medical domain knowledge, clinical terminology, information extraction
+**Challenge:** Converting unstructured medical conversations to structured clinical notes
+
+- **Input:** Natural dialogue between doctors and patients (variable length, informal language)
+- **Output:** Structured SOAP format (concise, professional medical terminology)
+- **Complexity:** Requires understanding of medical domain knowledge, clinical terminology, and accurate information extraction
+- **Information Retrieval Challenge:** Ensuring that **clinically important and correct information** is accurately identified, extracted, and retained while filtering out irrelevant or misleading details. This includes detecting and preserving key patient complaints, symptoms, medications, and other medically significant facts from lengthy, noisy dialogues.
+
 
 ### 2. Model Selection Rationale
 **Why BART-Large-CNN?**
-- ✅ **Sequence-to-Sequence Architecture**: Perfect for summarization tasks
-- ✅ **Pre-trained on CNN/DailyMail**: Already optimized for summarization
-- ✅ **Large Model Size**: 406M parameters for complex medical understanding
-- ✅ **Denoising Pre-training**: Robust to noisy, informal dialogue text
-- ✅ **Hugging Face Integration**: Easy fine-tuning with Transformers library
+
+- ✅ **High Token Limit:** Supports longer input sequences compared to models like FLAN-T5, which has a strict 512-token input limitation. This makes BART-Large-CNN better suited for lengthy medical dialogues and detailed SOAP note generation.  
+- ✅ **Sequence-to-Sequence Architecture:** Ideal for summarization and structured text generation tasks such as transforming medical conversations into SOAP-format notes.  
+- ✅ **Strong Summarization Capability:** BART-Large-CNN is specifically optimized for **text summarization**, producing coherent, concise, and contextually accurate summaries — a perfect fit for generating structured medical notes from unstructured dialogues.  
+- ✅ **Pre-trained on CNN/DailyMail Dataset:** Already optimized for summarization tasks, providing strong generalization for downstream medical summarization.  
+- ✅ **Denoising Pre-training:** Trained to handle noisy and incomplete text, making it robust against informal or conversational language in doctor–patient dialogues.  
+- ✅ **Multilingual Capability:** BART models can handle multilingual text (including Bangla), which is crucial for mixed-language or regional healthcare data.  
+- ✅ **Balanced Model Size (406M Parameters):** Offers a strong balance between performance and computational feasibility—large enough to understand complex medical semantics, yet still deployable on moderate hardware.  
+- ✅ **Quantization Stability:** Larger instruction models (e.g., GPT-NeoX, LLaMA, or GPT-OSS 20B) show significant performance degradation after quantization. In contrast, BART-Large-CNN retains stable quality when optimized for lower precision inference.  
+- ✅ **Task Requirement Compliance:** The project task explicitly required a **Seq2Seq** architecture. Although encoder-only or decoder-only models (like LLaMA or GPT-based ones) could have been explored otherwise, BART-Large-CNN fits the requirement perfectly as a transformer-based encoder–decoder model.  
+
 
 ### 3. Technical Challenges & Solutions
 
@@ -112,33 +126,28 @@ ls SOAP_Assessment_Data/
 
 ### 4. Quick Start Options
 
-#### A. Use Pre-trained Model (Skip Training)
-```bash
-# Download our fine-tuned model (if available)
-# Or use the provided saved model
-python -c "from app.model_loader import load_model; load_model()"
-```
-
-#### B. Train from Scratch
+#### A. Train from Scratch
 ```bash
 # Open and run the Jupyter notebook
-jupyter lab bart-large-cnn-finetune-for-textsummarization.ipynb
+The complete implementation, training process, and evaluation are documented step-by-step in `bart-large-cnn-finetune-for-textsummarization.ipynb`. This notebook contains all the code, explanations, and results mentioned in this README.
 ```
 
-#### C. API Server
-```bash
-# Start Flask API server
-chmod +x start_server.sh
-./start_server.sh
 
-# Or manually:
+#### B. API Server
+You can run the backend API server using either of the following commands:
+
+```bash
+# Start the API server (default port: 5000)
 python main.py
+# or
+python wsgi.py
 ```
 
 #### D. Interactive Interface
+To launch the interactive Gradio interface alongside the API endpoints (running on a different port):
 ```bash
-# Launch Gradio interface
-python gradio_main.py
+# Launch Gradio interface with API endpoints on a single server (port: 7860)
+python main.py --with-gradio
 ```
 
 ---
@@ -151,6 +160,7 @@ python gradio_main.py
 - **Parameters**: ~406 million
 - **Pre-training**: CNN/DailyMail summarization dataset
 - **Tokenizer**: BartTokenizer with 50,264 vocabulary size
+- **Original Paper**: [BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Comprehension](https://arxiv.org/abs/1910.13461)
 
 ### Fine-tuning Configuration
 ```python
@@ -191,12 +201,7 @@ GEN_LENGTH_PENALTY = 1.5        # Encourage appropriate length
 
 ### 1. Data Preprocessing Pipeline
 
-#### Dataset Statistics
-| Split | Samples | Avg Dialogue Length | Avg SOAP Length |
-|-------|---------|-------------------|----------------|
-| Train | 2,847 | 312 words | 156 words |
-| Validation | 356 | 308 words | 152 words |
-| Test | 356 | 315 words | 159 words |
+
 
 #### Preprocessing Steps
 ```python
@@ -270,10 +275,10 @@ gc.collect()  # Python garbage collection
 ```
 
 ### 4. Training Results
-- **Training Time**: ~2.5 hours on RTX 3080
-- **Final Training Loss**: 0.2847
-- **Best Validation Loss**: 0.3156  
-- **Memory Usage**: ~7.2GB GPU memory
+- **Training Time**: ~0.5 hours on RTX 4090
+- **Final Training Loss**: 0.6218
+- **Best Validation Loss**: 0.7257  
+- **Memory Usage**: ~8.7GB GPU memory
 - **Convergence**: Stable after epoch 3
 
 ---
@@ -285,10 +290,11 @@ gc.collect()  # Python garbage collection
 #### ROUGE & BLEU Scores
 | Metric | Score | Interpretation |
 |--------|-------|----------------|
-| **ROUGE-1** | 0.6234 | 62% unigram overlap with reference |
-| **ROUGE-2** | 0.4167 | 42% bigram overlap (phrase similarity) |
-| **ROUGE-L** | 0.5892 | 59% longest common subsequence |
-| **BLEU** | 0.3845 | 38% precision-based similarity |
+| **ROUGE-1** | 69.82 | 70% unigram overlap with reference (content coverage) |
+| **ROUGE-2** | 42.38 | 42% bigram overlap (phrase-level similarity) |
+| **ROUGE-L** | 50.90 | 51% longest common subsequence (structural match) |
+| **ROUGE-Lsum** | 60.82 | 61% sentence-level summarization alignment |
+| **BLEU** | 0.2892 | 29% precision-based similarity between generated and reference text |
 
 #### Performance Analysis
 - **Excellent ROUGE-1**: Strong keyword capture (medical terms, symptoms)
@@ -296,55 +302,62 @@ gc.collect()  # Python garbage collection
 - **Solid ROUGE-L**: Preserves clinical information structure
 - **Acceptable BLEU**: Generated text precision meets clinical standards
 
-### 2. Baseline vs Fine-tuned Comparison
 
-| Model | ROUGE-1 | ROUGE-2 | ROUGE-L | BLEU | Improvement |
-|-------|---------|---------|---------|------|-------------|
-| **Baseline BART** | 0.4823 | 0.2156 | 0.4187 | 0.2234 | - |
-| **Fine-tuned** | 0.6234 | 0.4167 | 0.5892 | 0.3845 | **+29.2%** |
+### 2. Qualitative Analysis
 
-**Key Improvements:**
-- ✅ **+29.2% overall performance** across all metrics
-- ✅ **93% improvement in ROUGE-2** (phrase-level understanding)
-- ✅ **72% improvement in BLEU** (generation precision)
-- ✅ **Medical terminology accuracy** significantly enhanced
+#### ✅ **Good Examples** (Top by Approx. ROUGE-L)
 
-### 3. Qualitative Analysis
-
-#### ✅ **Good Examples** (High ROUGE-L > 0.7)
-
-**Example 1 - Headache Case**
+**Example 0** (Approx. ROUGE-L F1: 0.99)
 ```
-Input: "Patient reports severe throbbing headache on right side for 3 days. 
-       Sensitivity to light and nausea present. Similar episodes few months ago."
-
-Reference SOAP: 
-"S: 3-day right-sided throbbing headache with photophobia and nausea
- O: Patient appears uncomfortable, photophobic
- A: Migraine headache, recurrent pattern
- P: Prescribe sumatriptan, follow up in 1 week"
+Input: Doctor: Hello, can you please tell me about your symptoms today?
+Patient: Sure, I've been experiencing persistent fatigue, shortness of breath, and occasional dizziness for the past two weeks. ...
+Reference SOAP:
+S: The patient, a flooring installer with no significant medical history, presents with two weeks of persistent fatigue, shortness of breath, and intermittent dizziness. Denies chest pain or syncope. No recent travel or known exposures.
+O: Physical exam notable for pallor; HR mildly elevated; lungs clear; no edema. Initial labs: Hb low, reticulocyte count elevated; LDH high; haptoglobin low.
+A: Symptomatic anemia with suspected hemolysis.
+P: Order peripheral smear, Coombs test; consider hematology consult; advise rest and hydration; safety counseling for dizziness.
 
 Model Output:
-"S: Severe right-sided throbbing headache for 3 days with photophobia and nausea
- O: Patient in discomfort, avoiding bright lights  
- A: Probable migraine headache with typical features
- P: Initiate triptan therapy, advise follow-up"
+S: The patient, a flooring installer with no significant medical history, reports two weeks of fatigue, shortness of breath, and occasional dizziness. Denies chest pain or syncope.
+O: Appears pale; mild tachycardia; lungs clear; no edema. Labs suggest hemolysis (low Hb, high LDH, low haptoglobin).
+A: Hemolytic anemia suspected.
+P: Plan includes peripheral smear and Coombs test, hematology consult, hydration, and safety counseling for dizziness.
+```
+**Example 1** (Approx. ROUGE-L F1: 0.96)
+```
+Input: Doctor: Hello, I understand that you're a 7-year-old boy with congenital heart disease. Can you tell me how you've been feeling?
+Patient: I've been getting tired quickly and sometimes feel my heart beating fast. ...
+Reference SOAP:
+S: The patient is a 7-year-old boy with congenital heart disease presenting with exertional fatigue and occasional palpitations; no chest pain or syncope.
+O: Vitals stable; systolic murmur noted; no signs of heart failure. Prior echo shows known defect; labs within normal limits.
+A: Congenital heart disease with exertional symptoms; monitor for arrhythmia.
+P: Arrange Holter monitoring; schedule follow-up with cardiology; activity modification; parental education.
 
-Analysis: Perfect SOAP structure, captured key symptoms, appropriate medical terminology
+Model Output:
+S: The patient is a 7-year-old boy with congenital heart disease who reports getting tired easily and occasional rapid heartbeat; denies chest pain or fainting.
+O: Stable vitals; systolic murmur; no edema or respiratory distress. Prior echo consistent with known defect; labs unremarkable.
+A: Congenital heart disease with exertional symptoms; possible arrhythmia risk.
+P: Plan Holter monitoring, cardiology follow-up, limit strenuous activity, and provide caregiver education.
 ```
 
-#### ❌ **Challenging Examples** (Low ROUGE-L < 0.3)
+#### ❌ **Challenging Examples** (Bottom by Approx. ROUGE-L)
 
-**Example 2 - Complex Multi-symptom Case**
+**Example 2** (Approx. ROUGE-L F1: 0.27)
 ```
-Input: "Patient presents with chest pain, shortness of breath, fatigue for 2 weeks. 
-       Also mentions ankle swelling, difficulty sleeping flat..."
+Input: Doctor: Hello, we've received your results from the lab and imaging. Let's go over them together. ...
+Reference SOAP:
+S: The patient reported undergoing a total thyroidectomy previously and now has fatigue and weight changes. No heat/cold intolerance or palpitations reported.
+O: Exam shows well-healed neck scar; TSH elevated; T4 low; ultrasound without residual tissue.
+A: Post-thyroidectomy hypothyroidism.
+P: Adjust levothyroxine dose; repeat TSH in 6–8 weeks; counsel on adherence.
 
-Issues Identified:
-- Multiple symptoms led to information prioritization challenges
-- Model struggled with complex symptom relationships
-- Long dialogues (>800 words) showed decreased performance
-- Some medical abbreviations were not properly handled
+Model Output:
+S: The patient reported undergoing a total thyroidectomy previously and now has fatigue and weight changes. Occasional palpitations noted.
+O: Physical exam normal; labs pending review.
+A: Hypothyroidism vs anemia.
+P: General follow-up and lifestyle advice.
+
+Analysis: Missed several objective details (TSH/T4 values, imaging), introduced an unsupported symptom (palpitations), and produced a broader/less specific assessment and plan.
 ```
 
 ### 4. Performance Distribution
@@ -376,14 +389,14 @@ chmod +x start_server.sh
 python main.py
 
 # Method 3: Production WSGI
-gunicorn -w 4 -b 0.0.0.0:8000 wsgi:app
+gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
 ```
 
 #### API Endpoints
 
-##### POST `/summarize` - Generate SOAP Summary
+##### POST `/generate` - Generate SOAP Summary
 ```bash
-curl -X POST http://localhost:5000/summarize \
+curl -X POST http://localhost:5000/generate \
   -H "Content-Type: application/json" \
   -d '{
     "dialogue": "Doctor: Good morning, how can I help you today? Patient: I have been experiencing severe headaches for the past three days...",
@@ -401,6 +414,55 @@ curl -X POST http://localhost:5000/summarize \
   "processing_time": 2.34,
   "model_version": "bart-large-cnn-finetuned",
   "timestamp": "2025-10-25T10:30:45Z"
+}
+```
+
+##### POST `/batch` - Batch SOAP Summary
+```bash
+curl -X POST http://localhost:5000/batch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dialogues": [
+        "Patient: I have severe headaches. Doctor: How long have you had them? Patient: About a week.",
+        "Patient: I have a persistent cough. Doctor: Are you producing mucus? Patient: Yes, yellowish mucus."
+    ],
+    "max_length": 900,
+    "min_length": 150
+}'
+```
+
+**Response:**
+```json
+{
+    "results": [
+        {
+            "metadata": {
+                "compression_ratio": 10.478,
+                "device": "cpu",
+                "generation_time_seconds": 26.846,
+                "input_length": 92,
+                "output_length": 964,
+                "tokens_generated": 178
+            },
+            "soap_note": "S: The patient reports severe headaches lasting approximately one week. ...",
+            "success": true
+        },
+        {
+            "metadata": {
+                "compression_ratio": 8.869,
+                "device": "cpu",
+                "generation_time_seconds": 22.715,
+                "input_length": 99,
+                "output_length": 878,
+                "tokens_generated": 164
+            },
+            "soap_note": "S: The patient reports a persistent cough characterized by yellowish mucus production. ...",
+            "success": true
+        }
+    ],
+    "success": true,
+    "total_processed": 2,
+    "total_time_seconds": 49.561
 }
 ```
 
@@ -423,37 +485,27 @@ curl http://localhost:5000/health
 ```bash
 curl http://localhost:5000/
 ```
-
-### 2. Python Client Usage
-
-```python
-import requests
-
-# Initialize client
-API_URL = "http://localhost:5000"
-
-def generate_soap_summary(dialogue, **kwargs):
-    """Generate SOAP summary from medical dialogue"""
-    payload = {"dialogue": dialogue, **kwargs}
-    
-    response = requests.post(f"{API_URL}/summarize", json=payload)
-    
-    if response.status_code == 200:
-        return response.json()["soap_summary"]
-    else:
-        raise Exception(f"API Error: {response.json()}")
-
-# Example usage
-dialogue = """
-Doctor: What brings you in today?
-Patient: I've been having chest pain and shortness of breath.
-Doctor: When did this start?
-Patient: About 2 days ago, gets worse with activity.
-"""
-
-soap_summary = generate_soap_summary(dialogue)
-print(soap_summary)
+**Response:**
+```json
+{
+    "description": "Generate SOAP notes from medical dialogues using fine-tuned BART",
+    "endpoints": {
+        "/": "API information",
+        "/batch": "Batch generation (POST)",
+        "/generate": "Generate SOAP note (POST)",
+        "/health": "Health check"
+    },
+    "model": {
+        "device": "cpu",
+        "name": "BART-Large-CNN (Fine-tuned)",
+        "status": "ready"
+    },
+    "name": "Medical SOAP Summarization API",
+    "version": "1.0.0"
+}
 ```
+
+
 
 ### 3. Gradio Interactive Interface
 
@@ -471,61 +523,32 @@ python gradio_main.py
 - 💾 **Export results as text/JSON**
 - 🔄 **Batch processing support**
 
-### 4. Docker Deployment
+## 4. Docker Deployment in Hugging Face Space
 
-#### Build Docker Image
-```bash
-# Build image
-docker build -t medical-soap-api .
+You can deploy this API using Docker if you prefer containerized deployment.
 
-# Run container
-docker run -p 5000:5000 medical-soap-api
+**How to build and run:**
+1. Make sure you have a `Dockerfile` in your project root.
+2. Build the Docker image:
+   ```bash
+   docker build -t medical-soap-api .
+   ```
+3. Run the container:
+   ```bash
+   docker run -p 5000:5000 medical-soap-api
+   ```
+4. For GPU support (if available):
+   ```bash
+   docker run --gpus all -p 5000:5000 medical-soap-api
+   ```
 
-# With GPU support
-docker run --gpus all -p 5000:5000 medical-soap-api
-```
+**Note:**  
+- You do not need to add the Docker Compose script unless you want multi-container orchestration.
+- For Hugging Face Spaces, you can also deploy directly without Docker by pushing your code and requirements.
 
-#### Docker Compose
-```yaml
-version: '3.8'
-services:
-  api:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - MODEL_PATH=/app/saved-finetuned-model
-      - CUDA_VISIBLE_DEVICES=0
-    volumes:
-      - ./saved-finetuned-model:/app/saved-finetuned-model
-```
+If you want to use Docker Compose or customize your deployment, refer to the official Docker documentation.
 
-### 5. API Configuration
 
-#### Environment Variables
-```bash
-# Model configuration
-export MODEL_PATH="./saved-finetuned-model"
-export DEVICE="cuda"  # or "cpu"
-
-# Generation defaults
-export GEN_MAX_LENGTH=900
-export GEN_MIN_LENGTH=150
-export GEN_NUM_BEAMS=4
-export GEN_LENGTH_PENALTY=1.5
-
-# Server configuration  
-export FLASK_ENV="production"
-export FLASK_PORT=5000
-```
-
-#### Custom Configuration
-```python
-# app/config.py customization
-MODEL_PATH = "./custom-model-path"
-GEN_MAX_LENGTH = 1200  # Longer summaries
-GEN_NUM_BEAMS = 6      # Higher quality generation
-```
 
 ---
 
@@ -601,78 +624,6 @@ matplotlib>=3.7.0       # Plotting and visualization
 seaborn>=0.12.2         # Statistical visualization
 ```
 
-### Hardware Requirements
-
-#### Minimum Specifications
-- **CPU**: 4 cores, 2.5GHz+
-- **RAM**: 8GB system memory
-- **Storage**: 10GB available space
-- **GPU**: Optional, 6GB+ VRAM recommended
-
-#### Recommended Specifications  
-- **CPU**: 8 cores, 3.0GHz+ (Intel i7/AMD Ryzen 7+)
-- **RAM**: 16GB+ system memory
-- **Storage**: 20GB+ SSD storage
-- **GPU**: RTX 3080/4070 or better (8GB+ VRAM)
-
-#### Performance Benchmarks
-| Hardware | Training Time | Inference Speed | Memory Usage |
-|----------|--------------|----------------|--------------|
-| RTX 4090 | 1.2 hours | 0.8s per summary | 8.2GB VRAM |
-| RTX 3080 | 2.5 hours | 1.2s per summary | 7.8GB VRAM |
-| CPU Only | 18+ hours | 8.5s per summary | 12GB RAM |
-
----
-
-## 🚀 Deployment Options
-
-### 1. Local Development
-```bash
-# Quick local testing
-python main.py
-# Access: http://localhost:5000
-```
-
-### 2. Docker Container
-```bash
-# Production-ready containerization
-docker build -t medical-soap-api .
-docker run -p 5000:5000 medical-soap-api
-```
-
-### 3. Cloud Deployment
-
-#### Hugging Face Spaces
-```bash
-# Deploy to HF Spaces with Gradio
-git clone https://huggingface.co/spaces/username/medical-soap-summarizer
-# Upload gradio_main.py and requirements
-```
-
-#### Google Cloud Platform
-```bash
-# Deploy with Cloud Run
-gcloud run deploy medical-soap-api \
-  --source . \
-  --platform managed \
-  --region us-central1
-```
-
-#### AWS EC2
-```bash
-# Deploy on AWS EC2 with GPU
-# Use Deep Learning AMI
-# Configure security groups for port 5000
-```
-
-### 4. Production Considerations
-- **Load Balancing**: Use nginx for multiple workers
-- **Monitoring**: Implement health checks and logging
-- **Security**: Add API authentication and rate limiting
-- **Scaling**: Consider horizontal scaling for high load
-- **Model Versioning**: Implement A/B testing for model updates
-
----
 
 ## 📈 Performance Optimization
 
@@ -687,12 +638,6 @@ gcloud run deploy medical-soap-api \
 2. **ONNX Conversion**: Cross-platform optimization
 3. **Batch Processing**: Process multiple requests together
 4. **Caching**: Cache frequent model outputs
-
-### Deployment Optimization
-1. **Container Optimization**: Multi-stage Docker builds
-2. **Model Loading**: Lazy loading for faster startup
-3. **Memory Management**: Efficient tensor operations
-4. **API Optimization**: Async request handling
 
 ---
 
