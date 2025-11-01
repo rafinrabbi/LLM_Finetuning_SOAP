@@ -19,7 +19,7 @@ Medical professionals need to efficiently convert lengthy patient-doctor convers
 - **Plan**: Treatment recommendations and follow-up actions
 
 ### Solution Approach
-We fine-tune a pre-trained sequence-to-sequence transformer (BART-Large-CNN) on medical dialogue data to automatically generate accurate, coherent, and concise SOAP summaries.
+I fine-tune a pre-trained sequence-to-sequence transformer (BART-Large-CNN) on medical dialogue data to automatically generate accurate, coherent, and concise SOAP summaries.
 
 ### Key Features
 - ✅ **Fine-tuned BART Model** for medical domain adaptation
