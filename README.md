@@ -1,7 +1,6 @@
 # 🏥 Medical SOAP Summarization with Fine-tuned BART
 
 **Author:** Rawhatur Rabbi  
-**Contact:** rawhatur.rabbi@gmail.com, +8801937490471  
 **Repository:** [LLM_Finetuning_SOAP](https://github.com/rafinrabbi/LLM_Finetuning_SOAP)  
 **Date:** October 2025
 
